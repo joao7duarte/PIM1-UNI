@@ -206,11 +206,11 @@ class Professor():
         tree_frame = tk.Frame(card, bg=self.colors['card_bg'])
         tree_frame.pack(fill='both', expand=True, padx=20, pady=15)
         
-        columns = ('email', 'nome', 'idade', 'nota')
+        columns = ('nome', 'email', 'idade', 'nota')
         self.tree = ttk.Treeview(tree_frame, columns=columns, show='headings', height=15)
         
-        self.tree.heading('email', text='📧 Email')
         self.tree.heading('nome', text='👤 Nome Completo')
+        self.tree.heading('email', text='📧 Email')
         self.tree.heading('idade', text='🎂 Idade')
         self.tree.heading('nota', text='📊 Nota') 
         
