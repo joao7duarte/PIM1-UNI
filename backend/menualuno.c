@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <string.h>
-#include "menualuno.h"
-#include "menuprof.h" 
+#include "../routes/menualuno.h"
+#include "../routes/menuprof.h" 
 
-#define ARQ_ALUNOS "arquivos/alunos.txt"
+#define ARQ_ALUNOS "database/alunos.txt"
 
 void verNota() {
     char email[100];
@@ -14,7 +14,7 @@ void verNota() {
     printf("Digite seu email para ver a nota: ");
     scanf("%99s", emailBusca);
 
-    FILE *arquivo = fopen("notas.txt", "r");
+    FILE *arquivo = fopen(ARQ_ALUNOS, "r");
     if (!arquivo) {
         printf("Nenhuma nota registrada ainda.\n");
         return;

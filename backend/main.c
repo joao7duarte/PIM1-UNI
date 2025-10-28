@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include "menuprof.h"
-#include "menualuno.h"
+#include "../routes/menuprof.h"
+#include "../routes/menualuno.h"
 
 void menuProfessor();
 void menuAluno();
