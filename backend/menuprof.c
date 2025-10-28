@@ -192,10 +192,15 @@ void lancarNota() {
 
     for (int i = 0; i < total; i++) {
         if (strcmp(alunos[i].email, emailBusca) == 0) {
-            printf("Digite a nota: ");
+            printf("Aluno encontrado: %s\n", alunos[i].nome);
+            printf("Digite a nota (0-10): ");
             scanf("%f", &novaNota);
             getchar();
             
+            if (novaNota < 0 || novaNota > 10) {
+                printf("Erro: Nota deve estar entre 0 e 10!\n");
+                return;
+            }
             alunos[i].nota = novaNota;
             encontrado = 1;
             break;

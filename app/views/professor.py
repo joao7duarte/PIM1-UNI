@@ -240,8 +240,8 @@ class Professor():
                     if line and ';' in line:
                         parts = line.split(';')
                         if len(parts) >= 4:
-                            nome = parts[0].strip()
-                            email = parts[1].strip()
+                            email = parts[0].strip()
+                            nome = parts[1].strip()
                             idade = parts[2].strip()
                             nota_str = parts[3].strip()
                             
@@ -381,22 +381,25 @@ class Professor():
                     line = line.strip()
                     if line and ';' in line:
                         parts = line.split(';')
-                        if len(parts) >= 4 and parts[1].strip() == email:
-                            nome = parts[0].strip()
+                        if len(parts) >= 4:
+                            file_email = parts[0].strip()
+                            nome = parts[1].strip()
                             idade = parts[2].strip()
                             
-                            self.update_name_entry.delete(0, tk.END)
-                            self.update_name_entry.insert(0, nome)
-                            self.update_age_entry.delete(0, tk.END)
-                            self.update_age_entry.insert(0, idade)
-                            
-                            self.update_form_frame.pack(pady=20, padx=50)
-                            messagebox.showinfo("Sucesso", "Aluno encontrado! Preencha os novos dados.")
-                            return
+                            if file_email == email:
+                                self.update_name_entry.delete(0, tk.END)
+                                self.update_name_entry.insert(0, nome)
+                                self.update_age_entry.delete(0, tk.END)
+                                self.update_age_entry.insert(0, idade)
+                                
+                                self.update_form_frame.pack(pady=20, padx=50, fill='x')
+                                messagebox.showinfo("Sucesso", "Aluno encontrado! Preencha os novos dados.")
+                                return
+            
+            messagebox.showerror("Erro", "Aluno não encontrado!")
+            
         except FileNotFoundError:
-            pass
-        
-        messagebox.showerror("Erro", "Aluno não encontrado!")
+            messagebox.showerror("Erro", "Arquivo de alunos não encontrado!")
         
     def update_student(self):
         """Atualiza os dados de um aluno existente."""
