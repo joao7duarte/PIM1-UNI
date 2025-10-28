@@ -3,8 +3,8 @@ from tkinter import ttk, messagebox, scrolledtext
 import time
 
 class Professor():
-    "views/professor/dashboard.py"
     def create_professor_interface(self):
+        """Cria a interface principal do professor."""
         self.clear_interface()
         
         header_frame = tk.Frame(self.root, bg=self.colors['secondary'], height=100)
@@ -36,6 +36,7 @@ class Professor():
         self.sidebar_visible = True
 
     def create_professor_sidebar(self, parent):
+        """Cria o menu lateral do professor."""
         self.sidebar = tk.Frame(parent, bg=self.colors['dark'], width=280)
         self.sidebar.pack(side='right', fill='y', padx=(0, 15))
         self.sidebar.pack_propagate(False)
@@ -64,6 +65,7 @@ class Professor():
             btn.pack(fill='x', anchor='w')
 
     def create_content_area(self, parent):
+        """Cria a área de conteúdo principal."""
         self.content_frame = tk.Frame(parent, bg=self.colors['secondary'])
         self.content_frame.pack(side='left', fill='both', expand=True)
         
@@ -79,11 +81,13 @@ class Professor():
         self.show_frame(self.welcome_frame)
 
 
-    "vies/professor/students.py"
+
     def show_register_form(self):
+        """Exibe o formulário de cadastro de aluno."""
         self.show_frame(self.register_frame)
 
     def create_register_form(self):
+        """Cria o formulário de cadastro de aluno."""
         frame = tk.Frame(self.content_frame, bg=self.colors['secondary'])
         
         card = tk.Frame(frame, bg=self.colors['card_bg'], relief='flat')
@@ -139,6 +143,7 @@ class Professor():
         return frame
 
     def register_student(self):
+        """Cadastra um novo aluno no sistema."""
         email = self.email_entry.get().strip()
         nome = self.name_entry.get().strip()
         idade = self.age_entry.get().strip()
@@ -164,10 +169,12 @@ class Professor():
             messagebox.showerror("Erro", f"Falha ao cadastrar aluno:\n{result}")
 
     def show_students_list(self):
+        """Exibe a lista de alunos cadastrados."""
         self.load_students()
         self.show_frame(self.list_frame)
 
     def create_students_list(self):
+        """Cria a interface de listagem de alunos."""
         frame = tk.Frame(self.content_frame, bg=self.colors['secondary'])
         
         card = tk.Frame(frame, bg=self.colors['card_bg'], relief='flat')
@@ -195,20 +202,18 @@ class Professor():
         tree_frame = tk.Frame(card, bg=self.colors['card_bg'])
         tree_frame.pack(fill='both', expand=True, padx=20, pady=15)
         
-        # ADICIONAR COLUNA DE NOTAS
         columns = ('email', 'nome', 'idade', 'nota')
         self.tree = ttk.Treeview(tree_frame, columns=columns, show='headings', height=15)
         
         self.tree.heading('email', text='📧 Email')
         self.tree.heading('nome', text='👤 Nome Completo')
         self.tree.heading('idade', text='🎂 Idade')
-        self.tree.heading('nota', text='📊 Nota')  # NOVA COLUNA
+        self.tree.heading('nota', text='📊 Nota') 
         
-        # AJUSTAR LARGURAS DAS COLUNAS
         self.tree.column('email', width=250)
         self.tree.column('nome', width=300)
         self.tree.column('idade', width=80)
-        self.tree.column('nota', width=80)  # NOVA COLUNA
+        self.tree.column('nota', width=80) 
         
         scrollbar = ttk.Scrollbar(tree_frame, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscroll=scrollbar.set)
@@ -219,10 +224,10 @@ class Professor():
         return frame
 
     def load_students(self):
+        """Carrega e exibe a lista de alunos do sistema."""
         for item in self.tree.get_children():
             self.tree.delete(item)
         
-        # Primeiro tenta ler diretamente do arquivo
         try:
             with open('database/alunos.txt', 'r', encoding='utf-8') as f:
                 students_found = False
@@ -236,11 +241,10 @@ class Professor():
                             idade = parts[2].strip()
                             nota_str = parts[3].strip()
                             
-                            # Formatar a nota para exibição
                             try:
                                 nota_float = float(nota_str)
                                 if nota_float == -1.0:
-                                    nota_display = "N/A"  # Nota não atribuída
+                                    nota_display = "N/A"  
                                 else:
                                     nota_display = f"{nota_float:.2f}"
                             except ValueError:
@@ -255,7 +259,6 @@ class Professor():
         except FileNotFoundError:
             pass
         
-        # Se não encontrou no arquivo, tenta via sistema C
         success, result = self.execute_c_command('list')
         
         if success:
@@ -265,32 +268,26 @@ class Professor():
             for line in lines:
                 line = line.strip()
                 
-                # Procura por linhas com formato de dados de aluno
                 if 'Nome:' in line and 'Email:' not in line:
                     try:
-                        # Extrai nome
                         nome = line.replace('Nome:', '').strip()
                         
-                        # Procura as próximas linhas para email, idade e nota
                         idx = lines.index(line)
                         email = ""
                         idade = ""
                         nota = "N/A"
                         
-                        # Procura email nas próximas linhas
                         for i in range(idx + 1, min(idx + 6, len(lines))):
                             if 'Email:' in lines[i]:
                                 email = lines[i].replace('Email:', '').strip()
                             if 'Idade:' in lines[i]:
                                 idade_line = lines[i].replace('Idade:', '').strip()
-                                # Pega apenas o número da idade
                                 idade = idade_line.split()[0] if idade_line.split() else ""
                             if 'Nota:' in lines[i]:
                                 nota_line = lines[i].replace('Nota:', '').strip()
                                 if 'Não lançada' in nota_line:
                                     nota = "N/A"
                                 else:
-                                    # Extrai apenas o número da nota
                                     import re
                                     numbers = re.findall(r"[-+]?\d*\.\d+|\d+", nota_line)
                                     if numbers:
@@ -310,9 +307,11 @@ class Professor():
             self.tree.insert('', tk.END, values=("Erro ao", "carregar dados", "", result[:50]))
             
     def show_update_form(self):
+        """Exibe o formulário de atualização de aluno."""
         self.show_frame(self.update_frame)
 
     def create_update_form(self):
+        """Cria o formulário de atualização de aluno."""
         frame = tk.Frame(self.content_frame, bg=self.colors['secondary'])
         
         card = tk.Frame(frame, bg=self.colors['card_bg'], relief='flat')
@@ -366,6 +365,7 @@ class Professor():
         return frame
 
     def search_student(self):
+        """Busca um aluno por email para edição."""
         email = self.search_email_entry.get().strip()
         if not email:
             messagebox.showerror("Erro", "Digite um email para buscar!")
@@ -395,6 +395,7 @@ class Professor():
         messagebox.showerror("Erro", "Aluno não encontrado!")
         
     def update_student(self):
+        """Atualiza os dados de um aluno existente."""
         email = self.search_email_entry.get().strip()
         novo_nome = self.update_name_entry.get().strip()
         nova_idade = self.update_age_entry.get().strip()
@@ -423,9 +424,11 @@ class Professor():
             messagebox.showerror("Erro", f"Falha ao atualizar aluno:\n{result}")
 
     def show_delete_form(self):
+        """Exibe o formulário de exclusão de aluno."""
         self.show_frame(self.delete_frame)
 
     def create_delete_form(self):
+        """Cria o formulário de exclusão de aluno."""
         frame = tk.Frame(self.content_frame, bg=self.colors['secondary'])
         
         card = tk.Frame(frame, bg=self.colors['card_bg'], relief='flat')
@@ -456,6 +459,7 @@ class Professor():
         return frame
 
     def delete_student(self):
+        """Exclui um aluno do sistema."""
         email = self.delete_email_entry.get().strip()
         if not email:
             messagebox.showerror("Erro", "Digite um email para excluir!")
@@ -474,12 +478,12 @@ class Professor():
 
 
 
-
-    "views/professor/grades.py"
     def show_grade_form(self):
+        """Exibe o formulário de lançamento de notas."""
         self.show_frame(self.grade_frame)
 
     def create_grade_form(self):
+        """Cria o formulário de lançamento de notas."""
         frame = tk.Frame(self.content_frame, bg=self.colors['secondary'])
         
         card = tk.Frame(frame, bg=self.colors['card_bg'], relief='flat')
@@ -518,6 +522,7 @@ class Professor():
         return frame
 
     def assign_grade(self):
+        """Atribui uma nota a um aluno."""
         email = self.grade_email_entry.get().strip()
         nota = self.grade_entry.get().strip()
         
@@ -543,10 +548,12 @@ class Professor():
             messagebox.showerror("Erro", f"Falha ao atribuir nota:\n{result}")
 
     def show_statistics(self):
+        """Exibe as estatísticas do sistema."""
         self.update_statistics()
         self.show_frame(self.stats_frame)
 
     def create_statistics(self):
+        """Cria a interface de estatísticas."""
         frame = tk.Frame(self.content_frame, bg=self.colors['secondary'])
         
         card = tk.Frame(frame, bg=self.colors['card_bg'], relief='flat')
@@ -585,6 +592,7 @@ class Professor():
         return frame
 
     def update_statistics(self):
+        """Atualiza e exibe as estatísticas do sistema."""
         self.stats_text.delete('1.0', tk.END)
         
         try:

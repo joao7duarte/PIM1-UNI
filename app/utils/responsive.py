@@ -1,6 +1,6 @@
-
 class Responsive:
     def on_window_resize(self, event):
+            """Monitora o redimensionamento da janela."""
             if event.widget == self.root:
                 new_width = event.width
                 new_height = event.height
@@ -11,6 +11,7 @@ class Responsive:
                     self.update_responsive_layout()
 
     def update_responsive_layout(self):
+        """Atualiza o layout baseado no tamanho da tela."""
         width = self.current_width
         
         if width < 1000:
@@ -21,6 +22,7 @@ class Responsive:
                 self.activate_desktop_mode()
 
     def activate_mobile_mode(self):
+        """Ativa o modo de layout para dispositivos móveis."""
         self.is_mobile_mode = True
         
         if hasattr(self, 'sidebar'):
@@ -32,9 +34,10 @@ class Responsive:
             self.tree.column('email', width=150)
             self.tree.column('nome', width=200)
             self.tree.column('idade', width=60)
-            self.tree.column('nota', width=60)  # ATUALIZAR PARA MODO MÓVEL
+            self.tree.column('nota', width=60)  
 
     def activate_desktop_mode(self):
+        """Ativa o modo de layout para desktop."""
         self.is_mobile_mode = False
         
         if hasattr(self, 'menu_button'):
@@ -47,7 +50,7 @@ class Responsive:
             self.tree.column('email', width=250)
             self.tree.column('nome', width=300)
             self.tree.column('idade', width=80)
-            self.tree.column('nota', width=80)  # ATUALIZAR PARA MODO DESKTOP
+            self.tree.column('nota', width=80) 
         
         if hasattr(self, 'title_label'):
             self.title_label.config(font=('Segoe UI', 26, 'bold'))

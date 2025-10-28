@@ -61,6 +61,7 @@ class Login():
             self.root.update()
 
     def show_student_login(self):
+        """Exibe o formulário de login para alunos."""
         self.clear_interface()
         
         login_frame = tk.Frame(self.root, bg=self.colors['secondary'])
@@ -103,6 +104,7 @@ class Login():
                 command=self.create_login_interface).pack(fill='x', pady=8)
 
     def login_student(self):
+        """Autentica um aluno usando email."""
         email = self.student_email_entry.get().strip()
         
         if not email:
@@ -122,6 +124,7 @@ class Login():
             messagebox.showerror("Erro", f"Erro ao verificar aluno:\n{result}")
 
     def login_user(self, user_type):
+        """Realiza login para um tipo específico de usuário."""
         self.current_user = user_type
         if user_type == 'professor':
             self.create_professor_interface()
@@ -129,12 +132,14 @@ class Login():
             self.show_student_login()
 
     def logout(self):
+        """Realiza logout do usuário atual."""
         self.current_user = None
         if hasattr(self, 'student_logged_email'):
             del self.student_logged_email
         self.create_login_interface()
 
     def exit_system(self):
+        """Fecha o sistema com confirmação."""
         if messagebox.askokcancel("Sair", "Deseja realmente sair do sistema?"):
             self.root.quit()
             self.root.destroy()

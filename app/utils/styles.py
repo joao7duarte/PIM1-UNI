@@ -1,7 +1,8 @@
 import tkinter as tk
 from tkinter import ttk
 
-def setup_styles(self):
+def setup_styles(self): 
+        """Configura os estilos visuais e cores da aplicação."""
         style = ttk.Style()
         style.theme_use('clam')
         

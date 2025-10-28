@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 
 class Student():
-    "views/student/dashboard.py"
     def create_student_interface(self):
+        """Cria a interface principal do aluno."""
         self.clear_interface()
         
         header_frame = tk.Frame(self.root, bg=self.colors['secondary'], height=100)
@@ -28,6 +28,7 @@ class Student():
         self.create_content_area(main_container)
 
     def create_student_sidebar(self, parent):
+        """Cria o menu lateral do aluno."""
         self.sidebar = tk.Frame(parent, bg=self.colors['dark'], width=280)
         self.sidebar.pack(side='right', fill='y', padx=(0, 15))
         self.sidebar.pack_propagate(False)
@@ -53,15 +54,18 @@ class Student():
             btn.pack(fill='x', anchor='w')
 
     def show_student_home(self):
+        """Exibe a tela inicial do aluno."""
         self.show_frame(self.welcome_frame)
 
 
-    "views/student/grades.py"
+
     def show_student_grades_view(self):
+        """Exibe a visualização de notas do aluno."""
         self.show_student_grades()
         self.show_frame(self.student_grades_frame)
 
     def create_student_grades_view(self):
+        """Cria a interface de visualização de notas."""
         frame = tk.Frame(self.content_frame, bg=self.colors['secondary'])
         
         card = tk.Frame(frame, bg=self.colors['card_bg'], relief='flat')
@@ -95,6 +99,7 @@ class Student():
         return frame
 
     def show_student_grades(self):
+        """Carrega e exibe as notas do aluno logado."""
         if hasattr(self, 'student_logged_email'):
             email = self.student_logged_email
         else:
