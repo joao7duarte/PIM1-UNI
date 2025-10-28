@@ -10,11 +10,21 @@ class Student():
         header_frame.pack(fill='x', padx=10, pady=10)
         header_frame.pack_propagate(False)
         
+        self.menu_button = tk.Button(header_frame, text="☰", 
+                                    bg=self.colors['primary'],
+                                    fg=self.colors['text_dark'],
+                                    font=('Segoe UI', 14, 'bold'),
+                                    command=self.toggle_sidebar,
+                                    borderwidth=0,
+                                    width=4,
+                                    height=1)
+        self.menu_button.pack(side='left', padx=10, pady=15)
+        
         student_email = getattr(self, 'student_logged_email', 'Aluno')
         self.title_label = ttk.Label(header_frame, 
                                     text=f"👨‍🎓 Painel do Aluno - {student_email}", 
                                     style='Title.TLabel')
-        self.title_label.pack(side='right', padx=20, pady=25)
+        self.title_label.pack(side='left', padx=20, pady=25)
         
         logout_btn = ttk.Button(header_frame, text="🚪 Sair", 
                                 style='Danger.TButton',
@@ -26,7 +36,9 @@ class Student():
         
         self.create_student_sidebar(main_container)
         self.create_content_area(main_container)
-
+        
+        self.root.after(100, self.update_responsive_layout)
+    
     def create_student_sidebar(self, parent):
         """Cria o menu lateral do aluno."""
         self.sidebar = tk.Frame(parent, bg=self.colors['dark'], width=280)

@@ -28,6 +28,8 @@ class StudentManagementSystem(Responsive, Professor, Student, Login):
         
         self.root.bind('<Configure>', self.on_window_resize)
 
+        self.root.after(100, self.initialize_responsive)
+        
         self.create_login_interface()
  
     def show_frame(self, frame_to_show):
@@ -39,7 +41,10 @@ class StudentManagementSystem(Responsive, Professor, Student, Login):
         for frame in frames:
             frame.pack_forget()
         
-        frame_to_show.pack(fill='both', expand=True)
+        if frame_to_show:
+            frame_to_show.pack(fill='both', expand=True)
+
+        self.update_responsive_layout()
 
     def clear_interface(self):
         """Remove todos os widgets da interface."""

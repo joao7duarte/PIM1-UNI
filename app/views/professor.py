@@ -16,8 +16,12 @@ class Professor():
                                     fg=self.colors['text_dark'],
                                     font=('Segoe UI', 14, 'bold'),
                                     command=self.toggle_sidebar,
-                                    borderwidth=0)
-        self.menu_button.pack(side='right', padx=10, pady=15)
+                                    borderwidth=0,
+                                    width=4,
+                                    height=1)
+        
+        if self.current_width < 1000:
+            self.menu_button.pack(side='left', padx=10, pady=15)
         
         self.title_label = ttk.Label(header_frame, text="👨‍🏫 Painel do Professor", style='Title.TLabel')
         self.title_label.pack(side='left', padx=20, pady=25)
@@ -33,7 +37,7 @@ class Professor():
         self.create_content_area(main_container)
         self.create_professor_sidebar(main_container)
         
-        self.sidebar_visible = True
+        self.root.after(100, self.update_responsive_layout)
 
     def create_professor_sidebar(self, parent):
         """Cria o menu lateral do professor."""
