@@ -1,0 +1,4 @@
+joao;joao@gmail.com;22;8.00
+joao@gmail.com;joao gabriel;22;-1.00
+jonasbrothers@email.com;jonas;22;-1.00
+joao;joao777@gmail.com;22;8.00
