@@ -1,3 +1,6 @@
 # university-projects
 Initial commit
-pra compilar o código C tem que digitar no terminal: "caminho dos arquivos C" -o system.exe
+para compilar o código C digite no terminal: "caminho dos arquivos C" -o system.exe
+
+# chat bot, como usar
+para usa-lo deve alterar o caminho do arquivo ollama na maquina local
