@@ -255,7 +255,7 @@ class Professor():
                                 nota_display = "N/A"
                             
                             if email and nome and idade:
-                                self.tree.insert('', tk.END, values=(email, nome, idade, nota_display))
+                                self.tree.insert('', tk.END, values=(nome, email, idade, nota_display))
                                 students_found = True
                 
                 if students_found:

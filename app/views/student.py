@@ -54,7 +54,7 @@ class Student():
         sidebar_title.pack(fill='x', pady=(0, 25))
         
         buttons_data = [
-            ("📊 Ver Minhas Notas", 'Primary.TButton', self.show_student_grades),
+            ("📊 Ver Minhas Notas", 'Primary.TButton', self.show_student_grades_view),
             ("🏠 Voltar para Home", 'Success.TButton', self.show_student_home)
         ]
         
@@ -123,12 +123,22 @@ class Student():
         if success:
             self.student_grades_text.delete('1.0', tk.END)
             
-            if "Sua nota é:" in result:
+            # CORREÇÃO: Verificar de forma mais abrangente se há nota
+            if "Sua nota é:" in result or "Nota não lançada" in result or "Aluno não encontrado" in result:
                 self.student_grades_text.insert('1.0', f"📊 SUAS NOTAS\n\n")
                 self.student_grades_text.insert(tk.END, f"👤 Aluno: {email}\n")
                 self.student_grades_text.insert(tk.END, f"📧 Email: {email}\n\n")
                 self.student_grades_text.insert(tk.END, "="*50 + "\n")
-                self.student_grades_text.insert(tk.END, result)
+                
+                # Extrair apenas a parte relevante da resposta
+                lines = result.split('\n')
+                for line in lines:
+                    if "Sua nota é:" in line or "Nota não lançada" in line or "Aluno não encontrado" in line or "Nenhuma nota registrada" in line:
+                        self.student_grades_text.insert(tk.END, f"{line}\n")
+                
+                # Se não encontrou nenhuma das mensagens esperadas, mostrar resultado completo
+                if "Sua nota é:" not in result and "Nota não lançada" not in result:
+                    self.student_grades_text.insert(tk.END, f"\nResposta do sistema:\n{result}")
             else:
                 self.student_grades_text.insert('1.0', f"📊 SUAS NOTAS\n\n")
                 self.student_grades_text.insert(tk.END, f"👤 Aluno: {email}\n")
@@ -138,3 +148,4 @@ class Student():
                 self.student_grades_text.insert(tk.END, "Entre em contato com o professor.")
         else:
             messagebox.showerror("Erro", f"Falha ao carregar notas:\n{result}")
+            

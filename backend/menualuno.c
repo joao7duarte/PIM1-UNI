@@ -21,9 +21,13 @@ void verNota() {
         return;
     }
 
-    while (fscanf(arquivo, "%99[^;];%f\n", nome, email, &idade, &nota) == 4) {
+    while (fscanf(arquivo, "%99[^;];%99[^;];%d;%f\n", email, nome, &idade, &nota) == 4) {
         if (strcmp(email, emailBusca) == 0) {
-            printf("Sua nota é: %.2f\n", nota);
+            if (nota >= 0) {
+                printf("Sua nota é: %.2f\n", nota);
+            } else {
+                printf("Nota não lançada ainda.\n");
+            }
             encontrado = 1;
             break;
         }
