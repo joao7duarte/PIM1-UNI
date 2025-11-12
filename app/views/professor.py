@@ -375,26 +375,73 @@ class Professor():
             messagebox.showerror("Erro", "Digite um email para buscar!")
             return
         
+        # Primeiro tentar buscar no arquivo diretamente
         try:
             with open('database/alunos.txt', 'r', encoding='utf-8') as f:
+                aluno_encontrado = False
                 for line in f:
                     line = line.strip()
                     if line and ';' in line:
                         parts = line.split(';')
                         if len(parts) >= 4:
-                            file_email = parts[0].strip()
-                            nome = parts[1].strip()
-                            idade = parts[2].strip()
+                            # Verificar em ambas as posições possíveis para o email
+                            email_possivel_1 = parts[0].strip()
+                            email_possivel_2 = parts[1].strip() if len(parts) > 1 else ""
                             
-                            if file_email == email:
-                                self.update_name_entry.delete(0, tk.END)
-                                self.update_name_entry.insert(0, nome)
-                                self.update_age_entry.delete(0, tk.END)
-                                self.update_age_entry.insert(0, idade)
-                                
-                                self.update_form_frame.pack(pady=20, padx=50, fill='x')
-                                messagebox.showinfo("Sucesso", "Aluno encontrado! Preencha os novos dados.")
-                                return
+                            # Verificar qual campo contém o email (tem @)
+                            if '@' in email_possivel_1 and email_possivel_1 == email:
+                                nome = parts[1].strip()
+                                idade = parts[2].strip()
+                                aluno_encontrado = True
+                                break
+                            elif '@' in email_possivel_2 and email_possivel_2 == email:
+                                nome = parts[0].strip()
+                                idade = parts[2].strip()
+                                aluno_encontrado = True
+                                break
+                
+                if aluno_encontrado:
+                    self.update_name_entry.delete(0, tk.END)
+                    self.update_name_entry.insert(0, nome)
+                    self.update_age_entry.delete(0, tk.END)
+                    self.update_age_entry.insert(0, idade)
+                    
+                    self.update_form_frame.pack(pady=20, padx=50, fill='x')
+                    messagebox.showinfo("Sucesso", "Aluno encontrado! Preencha os novos dados.")
+                    return
+            
+            # Se não encontrou no arquivo, tentar via comando C
+            success, result = self.execute_c_command('list')
+            if success:
+                lines = result.split('\n')
+                for i, line in enumerate(lines):
+                    if email in line and 'Email:' in line:
+                        # Encontrou o email, agora buscar nome e idade
+                        nome = ""
+                        idade = ""
+                        
+                        # Procurar nome (linha anterior)
+                        for j in range(max(0, i-2), i):
+                            if 'Nome:' in lines[j] and 'Email:' not in lines[j]:
+                                nome = lines[j].replace('Nome:', '').strip()
+                                break
+                        
+                        # Procurar idade (linha posterior)
+                        for j in range(i+1, min(i+3, len(lines))):
+                            if 'Idade:' in lines[j]:
+                                idade_line = lines[j].replace('Idade:', '').strip()
+                                idade = idade_line.split()[0] if idade_line.split() else ""
+                                break
+                        
+                        if nome and idade:
+                            self.update_name_entry.delete(0, tk.END)
+                            self.update_name_entry.insert(0, nome)
+                            self.update_age_entry.delete(0, tk.END)
+                            self.update_age_entry.insert(0, idade)
+                            
+                            self.update_form_frame.pack(pady=20, padx=50, fill='x')
+                            messagebox.showinfo("Sucesso", "Aluno encontrado! Preencha os novos dados.")
+                            return
             
             messagebox.showerror("Erro", "Aluno não encontrado!")
             
@@ -419,6 +466,7 @@ class Professor():
             messagebox.showerror("Erro", "Idade deve ser um número válido!")
             return
         
+        # Primeiro tentar via comando C
         success, result = self.execute_c_command('update', email, novo_nome, nova_idade)
         
         if success and "atualizado com sucesso" in result.lower():
@@ -428,7 +476,52 @@ class Professor():
             self.update_age_entry.delete(0, tk.END)
             self.update_form_frame.pack_forget()
         else:
-            messagebox.showerror("Erro", f"Falha ao atualizar aluno:\n{result}")
+            # Fallback: atualização manual no arquivo
+            try:
+                with open('database/alunos.txt', 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                
+                aluno_encontrado = False
+                with open('database/alunos.txt', 'w', encoding='utf-8') as f:
+                    for line in lines:
+                        if ';' in line:
+                            parts = line.strip().split(';')
+                            if len(parts) >= 4:
+                                # Verificar em ambas as posições possíveis para o email
+                                email_possivel_1 = parts[0].strip()
+                                email_possivel_2 = parts[1].strip() if len(parts) > 1 else ""
+                                
+                                # Verificar qual campo contém o email (tem @)
+                                if '@' in email_possivel_1 and email_possivel_1 == email:
+                                    # Email está na primeira posição
+                                    new_line = f"{email};{novo_nome};{nova_idade};{parts[3]}\n"
+                                    f.write(new_line)
+                                    aluno_encontrado = True
+                                elif '@' in email_possivel_2 and email_possivel_2 == email:
+                                    # Email está na segunda posição
+                                    new_line = f"{novo_nome};{email};{nova_idade};{parts[3]}\n"
+                                    f.write(new_line)
+                                    aluno_encontrado = True
+                                else:
+                                    f.write(line)
+                            else:
+                                f.write(line)
+                        else:
+                            f.write(line)
+                
+                if aluno_encontrado:
+                    messagebox.showinfo("Sucesso", "Aluno atualizado com sucesso!")
+                    self.search_email_entry.delete(0, tk.END)
+                    self.update_name_entry.delete(0, tk.END)
+                    self.update_age_entry.delete(0, tk.END)
+                    self.update_form_frame.pack_forget()
+                else:
+                    messagebox.showerror("Erro", "Aluno não encontrado no sistema!")
+                    
+            except FileNotFoundError:
+                messagebox.showerror("Erro", "Arquivo de alunos não encontrado!")
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao atualizar aluno: {str(e)}")
 
     def show_delete_form(self):
         """Exibe o formulário de exclusão de aluno."""
