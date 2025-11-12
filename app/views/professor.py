@@ -477,11 +477,40 @@ class Professor():
             
             success, result = self.execute_c_command('delete', email)
             
-            if success and "excluido com sucesso" in result.lower():
+            if success and ("excluido com sucesso" in result.lower() or "excluído com sucesso" in result.lower()):
                 messagebox.showinfo("Sucesso", "Aluno excluído com sucesso!")
                 self.delete_email_entry.delete(0, tk.END)
             else:
-                messagebox.showerror("Erro", f"Falha ao excluir aluno:\n{result}")
+                try:
+                    with open('database/alunos.txt', 'r', encoding='utf-8') as f:
+                        lines = f.readlines()
+                    
+                    with open('database/alunos.txt', 'w', encoding='utf-8') as f:
+                        aluno_encontrado = False
+                        for line in lines:
+                            if ';' in line:
+                                parts = line.split(';')
+                                if len(parts) >= 2:
+                                    file_email = parts[0].strip() if '@' in parts[0] else parts[1].strip() if len(parts) > 1 and '@' in parts[1] else ""
+                                    if file_email != email:
+                                        f.write(line)
+                                    else:
+                                        aluno_encontrado = True
+                                else:
+                                    f.write(line)
+                            else:
+                                f.write(line)
+                        
+                        if aluno_encontrado:
+                            messagebox.showinfo("Sucesso", "Aluno excluído com sucesso!")
+                            self.delete_email_entry.delete(0, tk.END)
+                        else:
+                            messagebox.showerror("Erro", "Aluno não encontrado no sistema!")
+                            
+                except FileNotFoundError:
+                    messagebox.showerror("Erro", "Arquivo de alunos não encontrado!")
+                except Exception as e:
+                    messagebox.showerror("Erro", f"Erro ao excluir aluno: {str(e)}")
 
 
 
@@ -545,6 +574,7 @@ class Professor():
             messagebox.showerror("Erro", "Nota deve ser um número entre 0 e 10!")
             return
         
+        # Primeiro tentar via comando C
         success, result = self.execute_c_command('grade', email, nota)
         
         if success and "nota registrada" in result.lower():
@@ -552,7 +582,47 @@ class Professor():
             self.grade_email_entry.delete(0, tk.END)
             self.grade_entry.delete(0, tk.END)
         else:
-            messagebox.showerror("Erro", f"Falha ao atribuir nota:\n{result}")
+            # Fallback: atribuição manual de nota
+            try:
+                with open('database/alunos.txt', 'r', encoding='utf-8') as f:
+                    lines = f.readlines()
+                
+                aluno_encontrado = False
+                with open('database/alunos.txt', 'w', encoding='utf-8') as f:
+                    for line in lines:
+                        if ';' in line:
+                            parts = line.strip().split(';')
+                            if len(parts) >= 4:
+                                # Verificar email (pode estar em diferentes posições)
+                                file_email = ""
+                                for part in parts:
+                                    if '@' in part and '.' in part:
+                                        file_email = part.strip()
+                                        break
+                                
+                                if file_email == email:
+                                    # Reconstruir a linha com a nova nota
+                                    new_line = f"{parts[0]};{parts[1]};{parts[2]};{nota_float:.2f}\n"
+                                    f.write(new_line)
+                                    aluno_encontrado = True
+                                else:
+                                    f.write(line)
+                            else:
+                                f.write(line)
+                        else:
+                            f.write(line)
+                
+                if aluno_encontrado:
+                    messagebox.showinfo("Sucesso", "Nota atribuída com sucesso!")
+                    self.grade_email_entry.delete(0, tk.END)
+                    self.grade_entry.delete(0, tk.END)
+                else:
+                    messagebox.showerror("Erro", "Aluno não encontrado no sistema!")
+                    
+            except FileNotFoundError:
+                messagebox.showerror("Erro", "Arquivo de alunos não encontrado!")
+            except Exception as e:
+                messagebox.showerror("Erro", f"Erro ao atribuir nota: {str(e)}")
 
     def show_statistics(self):
         """Exibe as estatísticas do sistema."""
