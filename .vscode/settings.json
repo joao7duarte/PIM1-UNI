@@ -60,6 +60,6 @@
     "string.h": "c"
   },
   "files.exclude": {
-        "**/__pycache__": true
-    },
+    "**/__pycache__": true
+  }
 }
