@@ -7,8 +7,9 @@ from app.utils.responsive import Responsive
 from app.auth.login import Login
 from app.views.professor import Professor
 from app.views.student import Student
+from app.views.chatbot_interface import ChatbotInterface
 
-class StudentManagementSystem(Responsive, Professor, Student, Login):
+class StudentManagementSystem(Responsive, Professor, Student, Login, ChatbotInterface):
     def __init__(self, root):
         """Inicializa o sistema de gestão escolar com interface gráfica."""
         self.root = root
@@ -34,14 +35,32 @@ class StudentManagementSystem(Responsive, Professor, Student, Login):
  
     def show_frame(self, frame_to_show):
         """Exibe um frame específico e oculta os demais."""
-        frames = [self.welcome_frame, self.register_frame, self.list_frame, 
-                 self.update_frame, self.delete_frame, self.grade_frame,
-                 self.stats_frame, self.student_grades_frame]
+        frames = []
+        
+        if hasattr(self, 'welcome_frame') and self.welcome_frame is not None:
+            frames.append(self.welcome_frame)
+        if hasattr(self, 'register_frame') and self.register_frame is not None:
+            frames.append(self.register_frame)
+        if hasattr(self, 'list_frame') and self.list_frame is not None:
+            frames.append(self.list_frame)
+        if hasattr(self, 'update_frame') and self.update_frame is not None:
+            frames.append(self.update_frame)
+        if hasattr(self, 'delete_frame') and self.delete_frame is not None:
+            frames.append(self.delete_frame)
+        if hasattr(self, 'grade_frame') and self.grade_frame is not None:
+            frames.append(self.grade_frame)
+        if hasattr(self, 'stats_frame') and self.stats_frame is not None:
+            frames.append(self.stats_frame)
+        if hasattr(self, 'student_grades_frame') and self.student_grades_frame is not None:
+            frames.append(self.student_grades_frame)
+        if hasattr(self, 'chatbot_frame') and self.chatbot_frame is not None:
+            frames.append(self.chatbot_frame)
         
         for frame in frames:
-            frame.pack_forget()
+            if frame is not None:
+                frame.pack_forget()
         
-        if frame_to_show:
+        if frame_to_show is not None:
             frame_to_show.pack(fill='both', expand=True)
 
         self.update_responsive_layout()

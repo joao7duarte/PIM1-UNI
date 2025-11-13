@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import time
+from app.views.chatbot_interface import ChatbotInterface
 
-class Professor():
+class Professor(ChatbotInterface):
     def create_professor_interface(self):
         """Cria a interface principal do professor."""
         self.clear_interface()
@@ -58,7 +59,8 @@ class Professor():
             ("👥 Listar Alunos", 'Success.TButton', self.show_students_list),
             ("✏️ Editar Aluno", 'Warning.TButton', self.show_update_form),
             ("🗑️ Excluir Aluno", 'Danger.TButton', self.show_delete_form),
-            ("📊 Lançar Nota", 'Primary.TButton', self.show_grade_form)
+            ("📊 Lançar Nota", 'Primary.TButton', self.show_grade_form),
+            ("🤖 Chatbot Ajuda", 'Success.TButton', self.show_chatbot)
         ]
         
         for text, style, command in buttons_data:
@@ -81,8 +83,17 @@ class Professor():
         self.grade_frame = self.create_grade_form()
         self.stats_frame = self.create_statistics()
         self.student_grades_frame = self.create_student_grades_view()
+
+        self.chatbot_frame = self.create_chatbot_interface()
         
         self.show_frame(self.welcome_frame)
+
+
+    def show_chatbot(self):
+        """Exibe a interface do chatbot."""
+        if not hasattr(self, 'chatbot_frame'):
+            self.chatbot_frame = self.create_chatbot_interface()
+        self.show_frame(self.chatbot_frame)
 
 
 

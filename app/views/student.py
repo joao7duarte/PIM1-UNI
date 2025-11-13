@@ -1,7 +1,20 @@
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
+from app.views.chatbot_interface import ChatbotInterface
 
-class Student():
+class Student(ChatbotInterface):
+    def create_content_area(self, parent):
+        """Cria a área de conteúdo principal."""
+        self.content_frame = tk.Frame(parent, bg=self.colors['secondary'])
+        self.content_frame.pack(side='left', fill='both', expand=True)
+        
+        self.welcome_frame = self.create_welcome_screen()
+        self.student_grades_frame = self.create_student_grades_view()
+        
+        self.chatbot_frame = None
+        
+        self.show_frame(self.welcome_frame)
+
     def create_student_interface(self):
         """Cria a interface principal do aluno."""
         self.clear_interface()
@@ -55,6 +68,7 @@ class Student():
         
         buttons_data = [
             ("📊 Ver Minhas Notas", 'Primary.TButton', self.show_student_grades_view),
+            ("🤖 Chatbot Ajuda", 'Success.TButton', self.show_chatbot),
             ("🏠 Voltar para Home", 'Success.TButton', self.show_student_home)
         ]
         
@@ -70,6 +84,12 @@ class Student():
         self.show_frame(self.welcome_frame)
 
 
+    def show_chatbot(self):
+        """Exibe a interface do chatbot."""
+        if not hasattr(self, 'chatbot_frame'):
+            self.chatbot_frame = self.create_chatbot_interface()
+        self.show_frame(self.chatbot_frame)
+        
 
     def show_student_grades_view(self):
         """Exibe a visualização de notas do aluno."""

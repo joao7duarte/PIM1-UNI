@@ -1,3 +1,1 @@
-mateus@gmail.com;Mateus;24;9.00
-daniel@gmail.com;Daniel Barbosa;23;-1.00
-Joao@gmail.com;Joao Gabriel;30;-1.00
+gui@gmail.com;Guilherme;20;-1.00
