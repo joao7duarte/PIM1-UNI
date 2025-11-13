@@ -118,34 +118,94 @@ class Student():
             messagebox.showerror("Erro", "Email do aluno não identificado!")
             return
         
-        success, result = self.execute_c_command('view_grades', email)
+        self.student_grades_text.delete('1.0', tk.END)
+        self.student_grades_text.insert('1.0', f"📊 SUAS NOTAS\n\n")
+        self.student_grades_text.insert(tk.END, f"📧 Email: {email}\n\n")
+        self.student_grades_text.insert(tk.END, "="*50 + "\n")
         
-        if success:
-            self.student_grades_text.delete('1.0', tk.END)
-            
-            # CORREÇÃO: Verificar de forma mais abrangente se há nota
-            if "Sua nota é:" in result or "Nota não lançada" in result or "Aluno não encontrado" in result:
-                self.student_grades_text.insert('1.0', f"📊 SUAS NOTAS\n\n")
-                self.student_grades_text.insert(tk.END, f"👤 Aluno: {email}\n")
-                self.student_grades_text.insert(tk.END, f"📧 Email: {email}\n\n")
-                self.student_grades_text.insert(tk.END, "="*50 + "\n")
+        try:
+            with open('database/alunos.txt', 'r', encoding='utf-8') as f:
+                aluno_encontrado = False
+                nota_encontrada = False
                 
-                # Extrair apenas a parte relevante da resposta
+                for line in f:
+                    line = line.strip()
+                    if line and ';' in line:
+                        parts = line.split(';')
+                        if len(parts) >= 4:
+                            file_email = ""
+                            file_nome = ""
+                            file_nota = ""
+                            
+                            for i, part in enumerate(parts):
+                                part = part.strip()
+                                if '@' in part and '.' in part:
+                                    file_email = part
+                                    if i == 0 and len(parts) > 1:
+                                        file_nome = parts[1].strip()
+                                    elif i == 1:
+                                        file_nome = parts[0].strip()
+                                    break
+                            
+                            file_nota = parts[-1].strip()
+                            
+                            if file_email == email:
+                                aluno_encontrado = True
+                                self.student_grades_text.insert(tk.END, f"👤 Nome: {file_nome}\n")
+                                
+                                try:
+                                    nota_float = float(file_nota)
+                                    if nota_float >= 0:
+                                        self.student_grades_text.insert(tk.END, f"📊 Nota: {nota_float:.2f}\n")
+                                        nota_encontrada = True
+                                    else:
+                                        self.student_grades_text.insert(tk.END, "📊 Nota: Não lançada ainda\n")
+                                except ValueError:
+                                    self.student_grades_text.insert(tk.END, "📊 Nota: Formato inválido\n")
+                                
+                                break
+                
+                if not aluno_encontrado:
+                    self.student_grades_text.insert(tk.END, "❌ Aluno não encontrado no sistema.\n")
+                elif not nota_encontrada and aluno_encontrado:
+                    self.student_grades_text.insert(tk.END, "📊 Nota: Não lançada ainda\n")
+                    
+        except FileNotFoundError:
+            success, result = self.execute_c_command('view_grades', email)
+            
+            if success:
                 lines = result.split('\n')
-                for line in lines:
-                    if "Sua nota é:" in line or "Nota não lançada" in line or "Aluno não encontrado" in line or "Nenhuma nota registrada" in line:
-                        self.student_grades_text.insert(tk.END, f"{line}\n")
+                nota_encontrada = False
                 
-                # Se não encontrou nenhuma das mensagens esperadas, mostrar resultado completo
-                if "Sua nota é:" not in result and "Nota não lançada" not in result:
-                    self.student_grades_text.insert(tk.END, f"\nResposta do sistema:\n{result}")
+                for line in lines:
+                    line = line.strip()
+                    if "Sua nota é:" in line:
+                        self.student_grades_text.insert(tk.END, f"📊 {line}\n")
+                        nota_encontrada = True
+                        break
+                    elif "Nota não lançada" in line:
+                        self.student_grades_text.insert(tk.END, f"📊 {line}\n")
+                        nota_encontrada = True
+                        break
+                
+                if not nota_encontrada:
+                    for line in lines:
+                        if "Nota:" in line and "Não lançada" not in line:
+                            import re
+                            numbers = re.findall(r"[-+]?\d*\.\d+|\d+", line)
+                            if numbers:
+                                self.student_grades_text.insert(tk.END, f"📊 Sua nota é: {float(numbers[0]):.2f}\n")
+                                nota_encontrada = True
+                                break
+                    
+                    if not nota_encontrada:
+                        self.student_grades_text.insert(tk.END, "📊 Nota: Não lançada ainda\n")
             else:
-                self.student_grades_text.insert('1.0', f"📊 SUAS NOTAS\n\n")
-                self.student_grades_text.insert(tk.END, f"👤 Aluno: {email}\n")
-                self.student_grades_text.insert(tk.END, f"📧 Email: {email}\n\n")
-                self.student_grades_text.insert(tk.END, "="*50 + "\n")
-                self.student_grades_text.insert(tk.END, "Nenhuma nota registrada para seu email.\n")
-                self.student_grades_text.insert(tk.END, "Entre em contato com o professor.")
-        else:
-            messagebox.showerror("Erro", f"Falha ao carregar notas:\n{result}")
-            
+                self.student_grades_text.insert(tk.END, f"❌ Erro ao carregar notas:\n{result}\n")
+        
+        except Exception as e:
+            self.student_grades_text.insert(tk.END, f"❌ Erro ao processar dados: {str(e)}\n")
+        
+        self.student_grades_text.insert(tk.END, "\n" + "="*50 + "\n")
+        self.student_grades_text.insert(tk.END, "📌 Entre em contato com o professor para mais informações.")
+                
