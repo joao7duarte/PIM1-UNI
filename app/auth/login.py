@@ -48,10 +48,20 @@ class Login():
                                     command=lambda: self.login_user('professor'))
             professor_btn.pack(**button_config)
             
-            aluno_btn = ttk.Button(button_frame, text="👨‍🎓 Entrar como Aluno", 
-                                style='Success.TButton',
-                                command=self.show_student_login)
-            aluno_btn.pack(**button_config)
+            alunos_cadastrados = self.check_students_exist()
+            
+            if alunos_cadastrados:
+                aluno_btn = ttk.Button(button_frame, text="👨‍🎓 Entrar como Aluno", 
+                                    style='Success.TButton',
+                                    command=self.show_student_login)
+                aluno_btn.pack(**button_config)
+            else:
+                aluno_btn = ttk.Button(button_frame, text="👨‍🎓 Entrar como Aluno (Nenhum aluno cadastrado)", 
+                                    style='Danger.TButton',
+                                    state='disabled',
+                                    command=self.show_student_login)
+                aluno_btn.pack(**button_config)
+                self.create_tooltip(aluno_btn, "Não há alunos cadastrados no sistema. O professor deve cadastrar alunos primeiro.")
             
             sair_btn = ttk.Button(button_frame, text="❌ Sair do Sistema", 
                                 style='Danger.TButton',
@@ -60,8 +70,54 @@ class Login():
             
             self.root.update()
 
+    def check_students_exist(self):
+        """Verifica se existem alunos cadastrados no sistema."""
+        try:
+            import os
+            if os.path.exists('database/alunos.txt'):
+                with open('database/alunos.txt', 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and ';' in line:
+                            parts = line.split(';')
+                            if len(parts) >= 4:
+                                for part in parts:
+                                    if '@' in part and '.' in part:
+                                        return True
+            return False
+        except:
+            return False
+
+    def create_tooltip(self, widget, text):
+        """Cria um tooltip para widgets desabilitados."""
+        def on_enter(event):
+            tooltip = tk.Toplevel()
+            tooltip.wm_overrideredirect(True)
+            tooltip.wm_geometry(f"+{event.x_root+10}+{event.y_root+10}")
+            
+            label = tk.Label(tooltip, text=text, background="yellow", 
+                           relief='solid', borderwidth=1, font=('Segoe UI', 9))
+            label.pack()
+            
+            widget.tooltip = tooltip
+        
+        def on_leave(event):
+            if hasattr(widget, 'tooltip'):
+                widget.tooltip.destroy()
+                delattr(widget, 'tooltip')
+        
+        widget.bind("<Enter>", on_enter)
+        widget.bind("<Leave>", on_leave)
+
     def show_student_login(self):
         """Exibe o formulário de login para alunos."""
+        if not self.check_students_exist():
+            messagebox.showerror("Acesso Bloqueado", 
+                               "Não há alunos cadastrados no sistema!\n\n"
+                               "O professor deve cadastrar alunos primeiro "
+                               "antes que possam fazer login.")
+            return
+            
         self.clear_interface()
         
         login_frame = tk.Frame(self.root, bg=self.colors['secondary'])
@@ -111,6 +167,17 @@ class Login():
             messagebox.showerror("Erro", "Por favor, digite seu email!")
             return
         
+        email_exists = self.check_email_exists(email)
+        
+        if not email_exists:
+            messagebox.showerror("Acesso Negado", 
+                               "Email não encontrado no sistema!\n\n"
+                               "Verifique se:\n"
+                               "• O email está correto\n"
+                               "• Você está cadastrado no sistema\n"
+                               "• O professor realizou seu cadastro")
+            return
+        
         success, result = self.execute_c_command('list')
         
         if success:
@@ -122,6 +189,23 @@ class Login():
                 messagebox.showerror("Erro", "Aluno não encontrado no sistema!")
         else:
             messagebox.showerror("Erro", f"Erro ao verificar aluno:\n{result}")
+
+    def check_email_exists(self, email):
+        """Verifica se um email específico existe no sistema."""
+        try:
+            import os
+            if os.path.exists('database/alunos.txt'):
+                with open('database/alunos.txt', 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and ';' in line:
+                            parts = line.split(';')
+                            for part in parts:
+                                if part.strip() == email:
+                                    return True
+            return False
+        except:
+            return False
 
     def login_user(self, user_type):
         """Realiza login para um tipo específico de usuário."""
@@ -143,5 +227,3 @@ class Login():
         if messagebox.askokcancel("Sair", "Deseja realmente sair do sistema?"):
             self.root.quit()
             self.root.destroy()
-    
-

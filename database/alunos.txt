@@ -1,2 +1,1 @@
-lucas@gmail.com;lucas;60;8.00
-gui@gmail.com;Guilherme;19;7.00
+gui@gmail.com;Guilherme;19;10.00
