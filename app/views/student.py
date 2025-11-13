@@ -167,8 +167,6 @@ class Student():
                 
                 if not aluno_encontrado:
                     self.student_grades_text.insert(tk.END, "❌ Aluno não encontrado no sistema.\n")
-                elif not nota_encontrada and aluno_encontrado:
-                    self.student_grades_text.insert(tk.END, "📊 Nota: Não lançada ainda\n")
                     
         except FileNotFoundError:
             success, result = self.execute_c_command('view_grades', email)
@@ -197,9 +195,6 @@ class Student():
                                 self.student_grades_text.insert(tk.END, f"📊 Sua nota é: {float(numbers[0]):.2f}\n")
                                 nota_encontrada = True
                                 break
-                    
-                    if not nota_encontrada:
-                        self.student_grades_text.insert(tk.END, "📊 Nota: Não lançada ainda\n")
             else:
                 self.student_grades_text.insert(tk.END, f"❌ Erro ao carregar notas:\n{result}\n")
         

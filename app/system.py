@@ -149,6 +149,3 @@ class StudentManagementSystem(Responsive, Professor, Student, Login):
 
     
     
-    
-    
-   
